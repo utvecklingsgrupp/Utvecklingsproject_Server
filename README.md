@@ -3,6 +3,7 @@ server till utvecklingsprojektet(ska köras i rasperry pi)
 
 Material
 https://en.wikipedia.org/wiki/Port_forwarding (för remote server)
+ https://www.geeksforgeeks.org/normal-forms-in-dbms/ (regler för att spara data på ett lagring effektivt sätt.)
 
 
 1: Webhosting steg för steg
@@ -18,5 +19,3 @@ https://en.wikipedia.org/wiki/Port_forwarding (för remote server)
    4: Web Browser Rendering:
     The web browser receives the HTML content from the server and renders it as a website. This includes displaying text, images, links, and any other elements defined in the HTML file.
    
-   5:  https://www.geeksforgeeks.org/normal-forms-in-dbms/ 
-   regler för att spara data på ett lagring effektivt sätt.
