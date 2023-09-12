@@ -1,3 +1,13 @@
+
+/// To think about with IO operations. 
+/// Basically opening a file need a system call, meaning it have to ask the kernel. asking anything of the kernel wastes cpu cycles. Good to think about
+/// if you are gonna read from same file. Give a list of commands so you can read all the bytes you want in one swoop.
+
+/// but do remember that it isnt that bad. it wastes maybe some thousand cycles but our cpu does 1.8 billion cycles per second. so actually it is pretty fine.
+/// all depends on how much the code is called.
+/// 
+/// Try to be efficient with code that you think will happen frequently.
+
 use std::{
     error,
     fs::{File, OpenOptions},
