@@ -39,7 +39,7 @@ fn main() {
 }
 
 fn init_server_on_localhost() -> Result<TcpListener, &'static str> {
-    let ip_v4 = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
+    let ip_v4 = IpAddr::V4(Ipv4Addr::new(192, 168, 0, 104));
     let port = RUST_PORT;
     let socket_address = SocketAddr::new(ip_v4, port);
 
