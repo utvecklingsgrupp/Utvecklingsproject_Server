@@ -1,7 +1,7 @@
 use std::{
     fs,
     io::{prelude::*, BufReader},
-    net::{IpAddr, Ipv4Addr,SocketAddr,  TcpListener, TcpStream},
+    net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener, TcpStream},
     process,
 };
 
@@ -12,8 +12,7 @@ use rand::Rng;
 const LAN: bool = false;
 const PRINTING: bool = true;
 
-
-const LOCALHOST_IP_V4: &str = "127.0.0.git 1";
+const LOCALHOST_IP_V4: &str = "127.0.0.1";
 const SERVER_IP_V4: &str = "192.168.1.178";
 
 const RUST_PORT: u16 = 7878;
@@ -45,11 +44,11 @@ fn init_server_on_localhost() -> Result<TcpListener, &'static str> {
 
     assert_eq!(socket_address.port(), port);
     assert_eq!(socket_address.is_ipv4(), true);
-    assert_eq!(socket_address.ip(), IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)));
+   // assert_eq!(socket_address.ip(), IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)));
 
     let listener = TcpListener::bind(socket_address).unwrap();
     if listener.local_addr().unwrap() != socket_address {
-        return Err("Fail")
+        return Err("Fail");
     }
 
     Ok(listener)
@@ -66,7 +65,7 @@ fn init_server_on_lan() -> Result<TcpListener, &'static str> {
 
     let listener = TcpListener::bind(socket_address).unwrap();
     if listener.local_addr().unwrap() != socket_address {
-        return Err("Fail")
+        return Err("Fail");
     }
 
     Ok(listener)
@@ -79,7 +78,9 @@ fn run_server(listener: TcpListener) {
         let stream = stream.unwrap();
 
         counter += 1;
-        if PRINTING {println!("Connection established! Counter {}", counter)};
+        if PRINTING {
+            println!("Connection established! Counter {}", counter)
+        };
         handle_connection(stream, counter);
     }
 }
@@ -107,7 +108,9 @@ fn handle_connection(mut stream: TcpStream, mut counter: i32) {
         .take_while(|line| !line.is_empty())
         .collect();
 
-    if PRINTING {println!("Request: {request_line}\n{:#?}", http_request);} // need to examine borrow errors with buf_reader
+    if PRINTING {
+        println!("Request: {request_line}\n{:#?}", http_request);
+    } // need to examine borrow errors with buf_reader
 
     stream.write_all(response.as_bytes()).unwrap();
 }
