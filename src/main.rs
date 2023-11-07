@@ -73,6 +73,7 @@ fn init_server_on_lan() -> Result<TcpListener, &'static str> {
 
 fn run_server(listener: TcpListener) {
     let mut counter = 0;
+    let mut threads = vec![];
     loop {
         for stream in listener.incoming() {
             let stream = stream.unwrap();
@@ -81,7 +82,10 @@ fn run_server(listener: TcpListener) {
             if PRINTING {
                 println!("Connection established! Counter {}", counter)
             };
-            handle_connection(stream, counter);
+            
+            threads.push(std::thread::spawn(move ||{
+                handle_connection(stream, counter);
+            }));
         }
         println!("Repeat");
     }
