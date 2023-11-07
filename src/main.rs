@@ -44,7 +44,7 @@ fn init_server_on_localhost() -> Result<TcpListener, &'static str> {
 
     assert_eq!(socket_address.port(), port);
     assert_eq!(socket_address.is_ipv4(), true);
-   // assert_eq!(socket_address.ip(), IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)));
+    // assert_eq!(socket_address.ip(), IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)));
 
     let listener = TcpListener::bind(socket_address).unwrap();
     if listener.local_addr().unwrap() != socket_address {
@@ -73,44 +73,56 @@ fn init_server_on_lan() -> Result<TcpListener, &'static str> {
 
 fn run_server(listener: TcpListener) {
     let mut counter = 0;
+    loop {
+        for stream in listener.incoming() {
+            let stream = stream.unwrap();
 
-    for stream in listener.incoming() {
-        let stream = stream.unwrap();
-
-        counter += 1;
-        if PRINTING {
-            println!("Connection established! Counter {}", counter)
-        };
-        handle_connection(stream, counter);
+            counter += 1;
+            if PRINTING {
+                println!("Connection established! Counter {}", counter)
+            };
+            handle_connection(stream, counter);
+        }
+        println!("Repeat");
     }
 }
 
 fn handle_connection(mut stream: TcpStream, mut counter: i32) {
     let mut buf_reader = BufReader::new(&mut stream);
 
-    let request_line = buf_reader.by_ref().lines().next().unwrap().unwrap();
+    //let request_line = buf_reader.by_ref().lines().next().unwrap().unwrap();
+    match buf_reader.by_ref().lines().next() {
+        Some(x) => {
+            match x {
+                Ok(request_line) => {
+                    let (status_line, filename) =
+                        if request_line == "GET / HTTP/1.1" || request_line == "GET /index.html HTTP/1.1" {
+                            ("HTTP/1.1 200 OK", "index.html")
+                        } else if request_line == "GET /modulo.html HTTP/1.1" {
+                            ("HTTP/1.1 200 OK", "modulo.html")
+                        } else {
+                            ("HTTP/1.1 404 NOT FOUND", "error.html")
+                        };
 
-    let (status_line, filename) = if request_line == "GET / HTTP/1.1" || request_line == "GET /index.html HTTP/1.1" {
-        ("HTTP/1.1 200 OK", "index.html")
-    } else if request_line == "GET /modulo.html HTTP/1.1" {
-        ("HTTP/1.1 200 OK", "modulo.html")
-    } else {
-        ("HTTP/1.1 404 NOT FOUND", "error.html")
-    };
+                    let contents = fs::read_to_string(filename).unwrap();
+                    let length = contents.len();
+                    let response = format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
 
-    let contents = fs::read_to_string(filename).unwrap();
-    let length = contents.len();
-    let response = format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
+                    let http_request: Vec<_> = buf_reader
+                        .lines()
+                        .map(|result| result.unwrap())
+                        .take_while(|line| !line.is_empty())
+                        .collect();
 
-    let http_request: Vec<_> = buf_reader
-        .lines()
-        .map(|result| result.unwrap())
-        .take_while(|line| !line.is_empty())
-        .collect();
+                    if PRINTING {
+                        println!("Request: {request_line}\n{:#?}", http_request);
+                    } // need to examine borrow errors with buf_reader
 
-    if PRINTING {
-        println!("Request: {request_line}\n{:#?}", http_request);
-    } // need to examine borrow errors with buf_reader
-
-    stream.write_all(response.as_bytes()).unwrap();
+                    stream.write_all(response.as_bytes()).unwrap();
+                }
+                Err(e) => println!("Error: {e}"),
+            }
+        }
+        None => println!("None"),
+    }
 }
